@@ -1,0 +1,31 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.26"
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 800
+via_ir = false
+ffi = false
+fs_permissions = [{ access = "read-write", path = "./deployments" }]
+
+remappings = [
+  "v4-core/=lib/v4-core/",
+  "forge-std/=lib/v4-core/lib/forge-std/src/",
+  "solmate/=lib/v4-core/lib/solmate/",
+  "@openzeppelin/=lib/v4-core/lib/openzeppelin-contracts/",
+]
+
+[rpc_endpoints]
+unichain_sepolia = "${UNICHAIN_SEPOLIA_RPC_URL}"
+base_sepolia = "${BASE_SEPOLIA_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+
+[fmt]
+line_length = 120
+
+[lint]
+lint_on_build = false
