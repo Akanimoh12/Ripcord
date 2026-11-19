@@ -46,7 +46,7 @@ Requires [Foundry](https://book.getfoundry.sh/getting-started/installation).
 ```bash
 cd contracts
 ./setup.sh                    # pulls v4-core into lib/
-forge test                    # 12 tests
+forge test                    # 24 tests, incl. fuzz
 cp .env.example .env          # add PRIVATE_KEY (funded with testnet ETH)
 source .env
 forge script script/Deploy.s.sol --rpc-url unichain_sepolia --broadcast
@@ -95,12 +95,16 @@ cd contracts && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae
 | `haul(maxPulls)` | anyone | check ropes without a swap |
 | `seed(amount0, amount1)` | curator | launch the vault two-sided (once) |
 | `rebalance(lower, upper)` | curator | move the shared range |
+| `setMinDeposit(amount)` | curator | dust floor for deposits and partial exits (deploy sets 10 rUSDC) |
+| `setCurator(next)` | curator | hand over the role |
 | `ropeOf(user)`, `activeBuckets()`, `sharePrice()` | view | everything the app reads |
 
 ## Known limits
 
 - A rope is a stop-loss, not a guarantee. It pulls at the first check after the floor is crossed, so a large one-block gap can land below it.
 - Pricing is manipulation-resistant within a block, but not a TWAP. Production should read an oracle.
+- Deposits pause while the price is outside the curator's range, until the curator rebalances.
+- The hook never trades past its own range, so a large exit in thin water can return part of it as rWETH.
 - There are no curator fees yet. The code is unaudited and for testnet only.
 
 ## License
