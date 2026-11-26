@@ -15,6 +15,8 @@ export const ripcordAbi = parseAbi([
   "function tickUpper() view returns (int24)",
   "function activeBuckets() view returns (uint32[] ids, uint256[] triggers, uint256[] shares)",
   "function ropeOf(address user) view returns (uint256 shares, uint256 entryPrice, uint16 dropBps, uint256 triggerPrice, uint256 value, bool pulled, uint256 claim0, uint256 claim1, uint256 pullPrice, uint256 pullBlock)",
+  "event Claimed(address indexed user, uint256 amount0, uint256 amount1)",
+  "event Surfaced(address indexed user, uint256 shares, uint256 amount0, uint256 amount1)",
   "event RopePulled(uint32 indexed bucket, uint32 round, uint256 shares, uint256 amount0, uint256 amount1, uint256 sharePrice)",
   "error NotLaunched()",
   "error ZeroAmount()",

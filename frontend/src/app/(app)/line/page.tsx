@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { parseEventLogs } from "viem";
 import { useAccount } from "wagmi";
 import { ripcordAbi } from "@/lib/abi";
 import { addresses } from "@/lib/config";
-import { below, fmtPct, fmtPrice, fmtUsdc, mulPrice } from "@/lib/format";
+import { below, fmtPct, fmtPrice, fmtUsdc, fmtWeth, mulPrice } from "@/lib/format";
 import { useRope, useTx, useVault } from "@/lib/hooks";
 import { WalletButton } from "@/components/Headers";
 import { TxStatus } from "@/components/TxStatus";
@@ -17,11 +18,22 @@ export default function LinePage() {
   const { sharePrice } = useVault();
   const { rope, hasPosition, isLoading } = useRope();
   const tx = useTx();
+  const [surfaced, setSurfaced] = useState<{ weth: bigint; usdc: bigint }>();
 
   useEffect(() => {
     if (rope?.pulled) router.replace("/surfaced");
   }, [rope?.pulled, router]);
 
+  if (surfaced) {
+    return (
+      <Empty
+        title="YOU SURFACED"
+        body={`${fmtUsdc(surfaced.usdc)} rUSDC${surfaced.weth > 0n ? ` and ${fmtWeth(surfaced.weth)} rWETH` : ""} went back to your wallet.`}
+      >
+        <Link href="/dive" className="btn btn-md">DIVE AGAIN</Link>
+      </Empty>
+    );
+  }
   if (!isConnected) {
     return (
       <Empty title="YOUR LINE" body="Connect your wallet to see how deep you are.">
@@ -48,13 +60,14 @@ export default function LinePage() {
   const atPull = drop > 0 ? mulPrice(rope.shares, rope.triggerPrice) : undefined;
 
   async function surfaceNow() {
-    await tx.send("Surface", {
+    const receipt = await tx.send("Surface", {
       address: addresses.hook,
       abi: ripcordAbi,
       functionName: "surface",
       args: [0n, true, (rope!.value * 95n) / 100n],
     });
-    router.push("/boat");
+    const [ev] = parseEventLogs({ abi: ripcordAbi, logs: receipt.logs, eventName: "Surfaced" });
+    setSurfaced({ weth: ev?.args.amount0 ?? 0n, usdc: ev?.args.amount1 ?? 0n });
   }
 
   return (
@@ -112,12 +125,14 @@ export default function LinePage() {
             </div>
             <dl className="dl">
               <div>
-                <dt>Taken down</dt>
+                <dt>Value when you boarded</dt>
                 <dd>{fmtUsdc(takenDown)} rUSDC</dd>
               </div>
               <div>
                 <dt>Worth now</dt>
-                <dd className="display" style={{ fontSize: 30 }}>{fmtUsdc(rope.value)} rUSDC</dd>
+                <dd className="display" style={{ fontSize: 30 }}>
+                  {fmtUsdc(rope.value)} <span className="unit">rUSDC</span>
+                </dd>
               </div>
               <div>
                 <dt>Worth at the pull, about</dt>

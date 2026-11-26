@@ -23,7 +23,7 @@ export function RoughSeas() {
   const price = ethPrice(spotSqrtPrice);
 
   async function faucet(token: `0x${string}`, label: string) {
-    await tx.send(label, { address: token, abi: erc20Abi, functionName: "faucet" });
+    await tx.send(label, { address: token, abi: erc20Abi, functionName: "faucet" }).catch(() => {});
   }
 
   async function swap(zeroForOne: boolean) {
@@ -51,7 +51,9 @@ export function RoughSeas() {
   }
 
   async function haul() {
-    await tx.send("Haul ropes", { address: addresses.hook, abi: ripcordAbi, functionName: "haul", args: [10n] });
+    await tx
+      .send("Haul ropes", { address: addresses.hook, abi: ripcordAbi, functionName: "haul", args: [10n] })
+      .catch(() => {});
   }
 
   return (
@@ -72,10 +74,10 @@ export function RoughSeas() {
           <div className="strong">1. Fill your hold</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <button type="button" className="btn btn-ghost" disabled={!isConnected || tx.busy} onClick={() => faucet(addresses.usdc, "Faucet rUSDC")}>
-              + 20,000 rUSDC
+              + 20,000 <span className="unit">rUSDC</span>
             </button>
             <button type="button" className="btn btn-ghost" disabled={!isConnected || tx.busy} onClick={() => faucet(addresses.weth, "Faucet rWETH")}>
-              + 5 rWETH
+              + 5 <span className="unit">rWETH</span>
             </button>
           </div>
           <div className="muted" style={{ fontSize: 15 }}>
@@ -90,10 +92,10 @@ export function RoughSeas() {
             <div className="amount-unit">rWETH</div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <button type="button" className="btn btn-md" disabled={!isConnected || tx.busy} onClick={() => swap(true)}>
+            <button type="button" className="btn btn-md" disabled={!isConnected || tx.busy} onClick={() => swap(true).catch(() => {})}>
               SELL · STORM
             </button>
-            <button type="button" className="btn btn-ghost" disabled={!isConnected || tx.busy} onClick={() => swap(false)}>
+            <button type="button" className="btn btn-ghost" disabled={!isConnected || tx.busy} onClick={() => swap(false).catch(() => {})}>
               BUY · CALM
             </button>
           </div>

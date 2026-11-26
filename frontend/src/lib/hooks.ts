@@ -113,7 +113,12 @@ export function useTx() {
       setMessage(`${label}: waiting for the block`);
       const receipt = await client!.waitForTransactionReceipt({ hash: h });
       if (receipt.status !== "success") throw new Error("Transaction reverted");
+      // public RPCs are load-balanced and can lag a block: wait for the head, refetch, then refetch once more
+      for (let i = 0; i < 10 && (await client!.getBlockNumber({ cacheTime: 0 })) < receipt.blockNumber; i++) {
+        await new Promise((r) => setTimeout(r, 500));
+      }
       await queryClient.invalidateQueries();
+      setTimeout(() => queryClient.invalidateQueries(), 2500);
       setStatus("done");
       setMessage(`${label}: done`);
       return receipt;

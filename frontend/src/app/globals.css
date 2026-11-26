@@ -41,6 +41,9 @@ button { font: inherit; }
 .bronze { color: var(--bronze); }
 .kelp { color: var(--kelp); }
 .strong { font-weight: 800; }
+/* token symbols keep their lowercase r inside display-font numbers */
+.unit { font-family: var(--body); font-weight: 800; font-size: 0.62em; letter-spacing: 0.02em; }
+.btn .unit { font-size: 0.95em; letter-spacing: 0.04em; }
 .m0 { margin: 0; }
 
 .wrap { max-width: 1200px; margin: 0 auto; }

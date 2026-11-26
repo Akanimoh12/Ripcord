@@ -15,7 +15,7 @@ export default function BoatPage() {
     ...v.buckets.map((b) => ({
       key: String(b.id),
       price: fmtPrice(b.trigger),
-      below: v.sharePrice ? fmtPct(below(v.sharePrice, b.trigger)) : "—",
+      below: !v.sharePrice ? "—" : b.trigger >= v.sharePrice ? "Pulls at next check" : fmtPct(below(v.sharePrice, b.trigger)),
       pct: share(b.shares),
     })),
     { key: "none", price: "No rope", below: "Never pulls", pct: share(total - roped) },
@@ -23,7 +23,7 @@ export default function BoatPage() {
 
   const range =
     v.tickLower !== undefined && v.tickUpper !== undefined
-      ? `${Math.round(tickToEthPrice(v.tickLower)).toLocaleString()}–${Math.round(tickToEthPrice(v.tickUpper)).toLocaleString()} rUSDC`
+      ? `${Math.round(tickToEthPrice(v.tickLower)).toLocaleString()}–${Math.round(tickToEthPrice(v.tickUpper)).toLocaleString()} rUSDC per rWETH`
       : "—";
 
   return (
